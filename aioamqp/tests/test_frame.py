@@ -61,11 +61,11 @@ class EncoderTestCase(unittest.TestCase):
     def test_write_message_correlation_id_encode(self):
         properties = {
             'delivery_mode': 2,
-            'priority': 0,
             'correlation_id': '122',
-            }
+        }
         self.encoder.write_message_properties(properties)
-        self.assertEqual(self.encoder.payload.getvalue(), b'\x1c\x00\x02\x00\x03122')
+        self.assertEqual(self.encoder.payload.getvalue(),
+                         b'\x14\x00\x02\x03122')
 
     def test_write_message_priority_zero(self):
         properties = {
