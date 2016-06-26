@@ -277,7 +277,7 @@ class AmqpProtocol(asyncio.StreamReaderProtocol):
         self._heartbeat_worker.cancel()
 
     @asyncio.coroutine
-    def heartbeat(self):
+    def heartbeat(self, timeout=None):
         """User method to force a heartbeat to the server
         usefull to check if the connexion is closed
 
@@ -289,7 +289,7 @@ class AmqpProtocol(asyncio.StreamReaderProtocol):
         yield from self.send_heartbeat()
         yield from asyncio.wait_for(
             self._heartbeat_waiter.wait(),
-            timeout=self.server_heartbeat * 2,
+            timeout=(self.server_heartbeat * 2) if timeout is None else timeout
         )
 
     @asyncio.coroutine
@@ -312,7 +312,7 @@ class AmqpProtocol(asyncio.StreamReaderProtocol):
         if self.server_heartbeat > 0:
             while self.is_open:
                 try:
-                    yield from self.heartbeat()
+                    yield from self.heartbeat(timeout=self.server_heartbeat / 2)
                 except asyncio.TimeoutError:
                     logger.warning('Heartbeat timeout from server')
                 yield from asyncio.sleep(self.server_heartbeat)
